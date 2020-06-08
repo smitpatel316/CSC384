@@ -71,33 +71,24 @@ def heur_min_moves_wrapper(state, helper=None):
     if helper is None:
         helper = BoardHelper(state)
     if helper.goal_vehicle.is_horizontal:
-        goal_vehicle_x = helper.goal_vehicle.loc[0]
-        entrance_x = helper.goal_entrance[0]
-        # E
+        goal_vehicle = helper.goal_vehicle.loc[0]
+        entrance = helper.goal_entrance[0]
         if helper.is_entrance_inverted:
-            goal_vehicle_x = helper.goal_vehicle_tail[0]
-
-        # Entrance is behind
-        if entrance_x > goal_vehicle_x:
-            moves_1 = goal_vehicle_x + helper.total_x - entrance_x
-            moves_2 = entrance_x - goal_vehicle_x
-        else:
-            moves_1 = goal_vehicle_x - entrance_x
-            moves_2 = helper.total_x - goal_vehicle_x + entrance_x
+            goal_vehicle = helper.goal_vehicle_tail[0]
+        total = helper.total_x
     else:
-        goal_vehicle_y = helper.goal_vehicle.loc[1]
-        entrance_y = helper.goal_entrance[1]
-        # S
+        goal_vehicle = helper.goal_vehicle.loc[1]
+        entrance = helper.goal_entrance[1]
         if helper.is_entrance_inverted:
-            goal_vehicle_y = helper.goal_vehicle_tail[1]
+            goal_vehicle = helper.goal_vehicle_tail[1]
+        total = helper.total_y
 
-        # Entrance is below
-        if entrance_y > goal_vehicle_y:
-            moves_1 = goal_vehicle_y + helper.total_y - entrance_y
-            moves_2 = entrance_y - goal_vehicle_y
-        else:
-            moves_1 = goal_vehicle_y - entrance_y
-            moves_2 = helper.total_y - goal_vehicle_y + entrance_y
+    if entrance > goal_vehicle:
+        moves_1 = goal_vehicle + total - entrance
+        moves_2 = entrance - goal_vehicle
+    else:
+        moves_1 = goal_vehicle - entrance
+        moves_2 = total - goal_vehicle + entrance
     return moves_1, moves_2
 
 
