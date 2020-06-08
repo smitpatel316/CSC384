@@ -111,8 +111,8 @@ def waterjugs_goal_fn(state):
     """test if the state is equal to the current goal,
     allow wild cards '*' in the goal state"""
     return (
-                   WaterJugs.goal_state[0] == "*" or state.gal3 == WaterJugs.goal_state[0]
-           ) and (WaterJugs.goal_state[1] == "*" or state.gal4 == WaterJugs.goal_state[1])
+        WaterJugs.goal_state[0] == "*" or state.gal3 == WaterJugs.goal_state[0]
+    ) and (WaterJugs.goal_state[1] == "*" or state.gal4 == WaterJugs.goal_state[1])
 
 
 def waterjugs_h_sum_function(state):

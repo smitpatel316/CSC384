@@ -1,6 +1,7 @@
 import pickle
 
 from rushhour import *
+
 # import student's functions
 from solution import *
 

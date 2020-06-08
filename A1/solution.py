@@ -124,89 +124,85 @@ def heur_alternate(state: Rushhour):
     helper = BoardHelper(state)
     moves_1, moves_2 = heur_min_moves_wrapper(state, helper)
 
-    blocked_1 = 1
+    blocked_1, blocked_2 = 1, 1
     if helper.goal_vehicle.is_horizontal:
-        goal_vehicle_x = helper.goal_vehicle.loc[0]
-        entrance_x = helper.goal_entrance[0]
-        # E
+        goal_vehicle_x_1 = helper.goal_vehicle.loc[0]
+        goal_vehicle_x_2 = helper.goal_vehicle_tail[0]
+        entrance_x_1 = helper.goal_entrance[0]
+        entrance_x_2 = helper.goal_entrance[0]
+
         if helper.is_entrance_inverted:
-            # goal_vehicle_x = helper.goal_vehicle_tail[0]
-            entrance_x -= helper.goal_vehicle.length - 1
-            if entrance_x < 0:
-                entrance_x = helper.total_x - entrance_x
+            entrance_x_1 -= helper.goal_vehicle.length - 1
+            if entrance_x_1 < 0:
+                entrance_x_1 = helper.total_x - entrance_x_1
+        else:
+            entrance_x_2 += helper.goal_vehicle.length - 1
+            if entrance_x_2 >= helper.total_x:
+                entrance_x_2 -= helper.total_x
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
                 vehicle_tail = helper.get_vehicle_tail(vehicle)
                 if vehicle.loc[1] <= helper.goal_vehicle.loc[1] <= vehicle_tail[1]:
-                    if entrance_x > goal_vehicle_x:
-                        if vehicle.loc[0] < goal_vehicle_x or vehicle.loc[0] > entrance_x:
+                    if entrance_x_1 > goal_vehicle_x_1:
+                        if (
+                            vehicle.loc[0] < goal_vehicle_x_1
+                            or vehicle.loc[0] > entrance_x_1
+                        ):
                             blocked_1 += 1
                     else:
-                        if goal_vehicle_x > vehicle.loc[0] > entrance_x:
+                        if goal_vehicle_x_1 > vehicle.loc[0] > entrance_x_1:
                             blocked_1 += 1
+                    if entrance_x_2 > goal_vehicle_x_2:
+                        if goal_vehicle_x_2 < vehicle.loc[0] < entrance_x_2:
+                            blocked_2 += 1
+                    else:
+                        if (
+                            vehicle.loc[0] > goal_vehicle_x_2
+                            or vehicle.loc[0] < entrance_x_2
+                        ):
+                            blocked_2 += 1
     else:
-        goal_vehicle_y = helper.goal_vehicle.loc[1]
-        entrance_y = helper.goal_entrance[1]
-        # E
+        goal_vehicle_y_1 = helper.goal_vehicle.loc[1]
+        goal_vehicle_y_2 = helper.goal_vehicle_tail[1]
+        entrance_y_1 = helper.goal_entrance[1]
+        entrance_y_2 = helper.goal_entrance[1]
+
         if helper.is_entrance_inverted:
-            # goal_vehicle_y = helper.goal_vehicle_tail[1]
-            entrance_y -= helper.goal_vehicle.length - 1
-            if entrance_y < 0:
-                entrance_y = helper.total_y - entrance_y
+            entrance_y_1 -= helper.goal_vehicle.length - 1
+            if entrance_y_1 < 0:
+                entrance_y_1 = helper.total_y - entrance_y_1
+        else:
+            entrance_y_2 += helper.goal_vehicle.length - 1
+            if entrance_y_2 >= helper.total_y:
+                entrance_y_2 -= helper.total_y
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
                 vehicle_tail = helper.get_vehicle_tail(vehicle)
+                # if helper.goal_vehicle.loc[0] >= vehicle.loc[0]:
+                #     # Wrapping
+                #     if vehicle_tail[0] < vehicle.loc[0]:
+                #
                 if vehicle.loc[0] <= helper.goal_vehicle.loc[0] <= vehicle_tail[0]:
-                    if entrance_y > goal_vehicle_y:
-                        if vehicle.loc[1] < goal_vehicle_y or vehicle.loc[1] > entrance_y:
+                    if entrance_y_1 > goal_vehicle_y_1:
+                        if (
+                            vehicle.loc[1] < goal_vehicle_y_1
+                            or vehicle.loc[1] > entrance_y_1
+                        ):
                             blocked_1 += 1
                     else:
-                        if goal_vehicle_y > vehicle.loc[1] > entrance_y:
+                        if goal_vehicle_y_1 > vehicle.loc[1] > entrance_y_1:
                             blocked_1 += 1
-    blocked_2 = 1
-    if helper.goal_vehicle.is_horizontal:
-        goal_vehicle_x = helper.goal_vehicle_tail[0]
-        entrance_x = helper.goal_entrance[0]
-        # E
-        if not helper.is_entrance_inverted:
-            # goal_vehicle_x = helper.goal_vehicle_tail[0]
-            entrance_x += helper.goal_vehicle.length - 1
-            if entrance_x >= helper.total_x:
-                entrance_x -= helper.total_x
-
-        for vehicle in state.vehicle_list:
-            if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
-                vehicle_tail = helper.get_vehicle_tail(vehicle)
-                if vehicle.loc[1] <= helper.goal_vehicle.loc[1] <= vehicle_tail[1]:
-                    if entrance_x > goal_vehicle_x:
-                        if goal_vehicle_x < vehicle.loc[0] < entrance_x:
+                    if entrance_y_2 > goal_vehicle_y_2:
+                        if goal_vehicle_y_2 < vehicle.loc[1] < entrance_y_2:
                             blocked_2 += 1
                     else:
-                        if vehicle.loc[0] > goal_vehicle_x or vehicle.loc[0] < entrance_x:
+                        if (
+                            vehicle.loc[1] > goal_vehicle_y_2
+                            or vehicle.loc[1] < entrance_y_2
+                        ):
                             blocked_2 += 1
-    else:
-        goal_vehicle_y = helper.goal_vehicle_tail[1]
-        entrance_y = helper.goal_entrance[1]
-        # E
-        if not helper.is_entrance_inverted:
-            # goal_vehicle_x = helper.goal_vehicle_tail[0]
-            entrance_y += helper.goal_vehicle.length - 1
-            if entrance_y >= helper.total_y:
-                entrance_y -= helper.total_y
-
-        for vehicle in state.vehicle_list:
-            if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
-                vehicle_tail = helper.get_vehicle_tail(vehicle)
-                if vehicle.loc[0] <= helper.goal_vehicle.loc[0] <= vehicle_tail[0]:
-                    if entrance_y > goal_vehicle_y:
-                        if goal_vehicle_y < vehicle.loc[0] < entrance_y:
-                            blocked_2 += 1
-                    else:
-                        if vehicle.loc[0] > goal_vehicle_y or vehicle.loc[0] < entrance_y:
-                            blocked_2 += 1
-
     return min(moves_1 + blocked_1, moves_2 + blocked_2)
 
 
@@ -237,13 +233,15 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1.0, timebound=10):
     """OUTPUT: A goal state (if a goal is found), else False"""
     """implementation of weighted astar algorithm"""
     time_remaining = timebound
-    se = SearchEngine('custom', 'full')
-    fval_wrap = (lambda sN: fval_function(sN, weight))
+    se = SearchEngine("custom", "full")
+    fval_wrap = lambda sN: fval_function(sN, weight)
     se.init_search(initial_state, rushhour_goal_fn, heur_fn, fval_wrap)
     best_solution = float("inf")
 
     start_time = os.times()[0]
-    result = se.search(time_remaining, costbound=(float("inf"), float("inf"), best_solution))
+    result = se.search(
+        time_remaining, costbound=(float("inf"), float("inf"), best_solution)
+    )
     end_time = os.times()[0]
 
     time_remaining = time_remaining - (end_time - start_time)
@@ -255,7 +253,9 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1.0, timebound=10):
 
     while time_remaining > 0 and not se.open.empty():
         start_time = os.times()[0]
-        better_result = se.search(time_remaining, (float("inf"), float("inf"), best_solution))
+        better_result = se.search(
+            time_remaining, (float("inf"), float("inf"), best_solution)
+        )
         end_time = os.times()[0]
         time_remaining = time_remaining - (end_time - start_time)
         if better_result:
@@ -273,17 +273,19 @@ def anytime_gbfs(initial_state, heur_fn, timebound=10):
     """INPUT: a rush hour state that represents the start state and a timebound (number of seconds)"""
     """OUTPUT: A goal state (if a goal is found), else False"""
     """implementation of anytime greedybfs algorithm"""
-    search_engine = SearchEngine('best_first', 'full')
+    search_engine = SearchEngine("best_first", "full")
     search_engine.init_search(initial_state, rushhour_goal_fn, heur_fn)
 
     gval_cost_bound = float("inf")
     time_left = timebound
 
     init_time = os.times()[0]
-    solution = search_engine.search(timebound=time_left, costbound=(gval_cost_bound, float('inf'), float('inf')))
+    solution = search_engine.search(
+        timebound=time_left, costbound=(gval_cost_bound, float("inf"), float("inf"))
+    )
     finish_time = os.times()[0]
 
-    time_left -= (finish_time - init_time)
+    time_left -= finish_time - init_time
 
     if solution:
         gval_cost_bound = solution.gval
@@ -292,9 +294,10 @@ def anytime_gbfs(initial_state, heur_fn, timebound=10):
 
     while time_left > 0:
         init_time = os.times()[0]
-        improved_solution = search_engine.search(timebound=time_left,
-                                                 costbound=(gval_cost_bound, float('inf'), float('inf')))
-        time_left -= (os.times()[0] - init_time)
+        improved_solution = search_engine.search(
+            timebound=time_left, costbound=(gval_cost_bound, float("inf"), float("inf"))
+        )
+        time_left -= os.times()[0] - init_time
         if improved_solution:
             gval_cost_bound = improved_solution.gval
             solution = improved_solution

@@ -361,7 +361,7 @@ class SearchEngine:
         return rval
 
     def init_search(
-            self, initState, goal_fn, heur_fn=_zero_hfn, fval_function=_fval_function
+        self, initState, goal_fn, heur_fn=_zero_hfn, fval_function=_fval_function
     ):
         """
         Get ready to search. Call search on this object to run the search.
@@ -500,8 +500,8 @@ class SearchEngine:
             # END TRACING
 
             if (
-                    self.cycle_check == _CC_FULL
-                    and self.cc_dictionary[node.state.hashable_state()] < node.gval
+                self.cycle_check == _CC_FULL
+                and self.cc_dictionary[node.state.hashable_state()] < node.gval
             ):
                 continue
 
@@ -529,8 +529,8 @@ class SearchEngine:
                 hash_state = succ.hashable_state()
                 if self.trace > 1:
                     if (
-                            self.cycle_check == _CC_FULL
-                            and hash_state in self.cc_dictionary
+                        self.cycle_check == _CC_FULL
+                        and hash_state in self.cc_dictionary
                     ):
                         print(
                             "   TRACE: Already in CC_dict, CC_dict gval={}, successor state gval={}".format(
@@ -545,8 +545,8 @@ class SearchEngine:
                     print("   TRACE: Heuristic Value:", heur_fn(succ))
 
                     if (
-                            self.cycle_check == _CC_FULL
-                            and hash_state in self.cc_dictionary
+                        self.cycle_check == _CC_FULL
+                        and hash_state in self.cc_dictionary
                     ):
                         print(
                             "   TRACE: Already in CC_dict, CC_dict gval={}, successor state gval={}".format(
@@ -559,10 +559,10 @@ class SearchEngine:
                 # END TRACING
 
                 prune_succ = (
-                                     self.cycle_check == _CC_FULL
-                                     and hash_state in self.cc_dictionary
-                                     and succ.gval > self.cc_dictionary[hash_state]
-                             ) or (self.cycle_check == _CC_PATH and succ.has_path_cycle())
+                    self.cycle_check == _CC_FULL
+                    and hash_state in self.cc_dictionary
+                    and succ.gval > self.cc_dictionary[hash_state]
+                ) or (self.cycle_check == _CC_PATH and succ.has_path_cycle())
 
                 if prune_succ:
                     self.cycle_check_pruned = self.cycle_check_pruned + 1
@@ -575,9 +575,9 @@ class SearchEngine:
 
                 succ_hval = heur_fn(succ)
                 if costbound is not None and (
-                        succ.gval > costbound[0]
-                        or succ_hval > costbound[1]
-                        or succ.gval + succ_hval > costbound[2]
+                    succ.gval > costbound[0]
+                    or succ_hval > costbound[1]
+                    or succ.gval + succ_hval > costbound[2]
                 ):
                     self.cost_bound_pruned = self.cost_bound_pruned + 1
                     if self.trace > 1:

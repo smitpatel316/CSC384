@@ -54,10 +54,10 @@ class Rushhour(StateSpace):
             states = list()
             for vehicle in vehicle_list:
                 if vehicle.is_horizontal or (
-                        vehicle.length != board_size[0]
-                        and occupancy_grid[(vehicle.loc[1] - 1) % board_size[0]][
-                            vehicle.loc[0]
-                        ]
+                    vehicle.length != board_size[0]
+                    and occupancy_grid[(vehicle.loc[1] - 1) % board_size[0]][
+                        vehicle.loc[0]
+                    ]
                 ):
                     continue
                 else:
@@ -83,10 +83,10 @@ class Rushhour(StateSpace):
             states = list()
             for vehicle in vehicle_list:
                 if vehicle.is_horizontal or (
-                        vehicle.length != board_size[0]
-                        and occupancy_grid[
-                            (vehicle.loc[1] + vehicle.length) % board_size[0]
-                        ][vehicle.loc[0]]
+                    vehicle.length != board_size[0]
+                    and occupancy_grid[
+                        (vehicle.loc[1] + vehicle.length) % board_size[0]
+                    ][vehicle.loc[0]]
                 ):
                     continue
                 else:
@@ -112,10 +112,10 @@ class Rushhour(StateSpace):
             states = list()
             for vehicle in vehicle_list:
                 if not vehicle.is_horizontal or (
-                        vehicle.length != board_size[1]
-                        and occupancy_grid[vehicle.loc[1]][
-                            (vehicle.loc[0] - 1) % board_size[1]
-                        ]
+                    vehicle.length != board_size[1]
+                    and occupancy_grid[vehicle.loc[1]][
+                        (vehicle.loc[0] - 1) % board_size[1]
+                    ]
                 ):
                     continue
                 else:
@@ -141,10 +141,10 @@ class Rushhour(StateSpace):
             states = list()
             for vehicle in vehicle_list:
                 if not vehicle.is_horizontal or (
-                        vehicle.length != board_size[1]
-                        and occupancy_grid[vehicle.loc[1]][
-                            (vehicle.loc[0] + vehicle.length) % board_size[1]
-                        ]
+                    vehicle.length != board_size[1]
+                    and occupancy_grid[vehicle.loc[1]][
+                        (vehicle.loc[0] + vehicle.length) % board_size[1]
+                    ]
                 ):
                     continue
                 else:
