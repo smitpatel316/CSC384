@@ -46,6 +46,28 @@ class BoardHelper:
                 new_y -= self.total_y
             return (head[0], new_y)
 
+    def is_vehicle_blocking_goal_vehicle(self, vehicle: Vehicle):
+        # i = 0 if vertical and 1 if horizontal
+        i = int(self.goal_vehicle.is_horizontal)
+        if self.goal_vehicle.is_horizontal:
+            total = self.total_y
+        else:
+            total = self.total_x
+
+        vehicle_tail = self.get_vehicle_tail(vehicle)
+        if vehicle.loc[i] <= self.goal_vehicle.loc[i] <= vehicle_tail[i]:
+            return True
+        elif vehicle.length >= total:
+            return True
+        # # Wrapping
+        # elif vehicle_tail[i] < vehicle.loc[i] and (
+        #     vehicle.loc[i] <= self.goal_vehicle.loc[i] <= total
+        #     or self.goal_vehicle.loc[i] <= vehicle_tail[i]
+        # ):
+        #     return True
+        else:
+            return False
+
 
 def rushhour_goal_fn(state: Rushhour):
     """Have we reached a goal state?"""
@@ -142,8 +164,9 @@ def heur_alternate(state: Rushhour):
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
-                vehicle_tail = helper.get_vehicle_tail(vehicle)
-                if vehicle.loc[1] <= helper.goal_vehicle.loc[1] <= vehicle_tail[1]:
+                # vehicle_tail = helper.get_vehicle_tail(vehicle)
+                # if vehicle.loc[1] <= helper.goal_vehicle.loc[1] <= vehicle_tail[1]:
+                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
                     if entrance_x_1 > goal_vehicle_x_1:
                         if (
                             vehicle.loc[0] < goal_vehicle_x_1
@@ -179,12 +202,7 @@ def heur_alternate(state: Rushhour):
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
-                vehicle_tail = helper.get_vehicle_tail(vehicle)
-                # if helper.goal_vehicle.loc[0] >= vehicle.loc[0]:
-                #     # Wrapping
-                #     if vehicle_tail[0] < vehicle.loc[0]:
-                #
-                if vehicle.loc[0] <= helper.goal_vehicle.loc[0] <= vehicle_tail[0]:
+                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
                     if entrance_y_1 > goal_vehicle_y_1:
                         if (
                             vehicle.loc[1] < goal_vehicle_y_1
