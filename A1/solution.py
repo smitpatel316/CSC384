@@ -59,12 +59,6 @@ class BoardHelper:
             return True
         elif vehicle.length >= total:
             return True
-        # # Wrapping
-        # elif vehicle_tail[i] < vehicle.loc[i] and (
-        #     vehicle.loc[i] <= self.goal_vehicle.loc[i] <= total
-        #     or self.goal_vehicle.loc[i] <= vehicle_tail[i]
-        # ):
-        #     return True
         else:
             return False
 
@@ -241,7 +235,7 @@ def fval_function(sN, weight):
     # The function must return a numeric f-value.
     # The value will determine your state's position on the Frontier list during a 'custom' search.
     # You must initialize your search engine object as a 'custom' search engine if you supply a custom fval function.
-    return (weight * sN.hval) + sN.gval  # replace this
+    return sN.gval + (weight * sN.hval)  # replace this
 
 
 def anytime_weighted_astar(initial_state, heur_fn, weight=1.0, timebound=10):
@@ -250,39 +244,37 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1.0, timebound=10):
     """INPUT: a rush hour state that represents the start state and a timebound (number of seconds)"""
     """OUTPUT: A goal state (if a goal is found), else False"""
     """implementation of weighted astar algorithm"""
-    time_remaining = timebound
+    time_left = timebound
+    wrapped_fval_function = lambda sN: fval_function(sN, weight)
     se = SearchEngine("custom", "full")
-    fval_wrap = lambda sN: fval_function(sN, weight)
-    se.init_search(initial_state, rushhour_goal_fn, heur_fn, fval_wrap)
-    best_solution = float("inf")
-
-    start_time = os.times()[0]
-    result = se.search(
-        time_remaining, costbound=(float("inf"), float("inf"), best_solution)
+    se.init_search(initial_state, rushhour_goal_fn, heur_fn, wrapped_fval_function)
+    cost_bound = float("inf")
+    init_time = os.times()[0]
+    solution = se.search(
+        timebound=time_left, costbound=(float("inf"), float("inf"), cost_bound)
     )
-    end_time = os.times()[0]
+    finish_time = os.times()[0]
+    time_left -= finish_time - init_time
 
-    time_remaining = time_remaining - (end_time - start_time)
-
-    if result:
-        best_solution = result.gval + heur_fn(result)
+    if solution:
+        cost_bound = solution.gval + heur_fn(solution)
     else:
         return False
 
-    while time_remaining > 0 and not se.open.empty():
-        start_time = os.times()[0]
-        better_result = se.search(
-            time_remaining, (float("inf"), float("inf"), best_solution)
+    while time_left > 0:
+        init_time = os.times()[0]
+        improved_solution = se.search(
+            timebound=time_left, costbound=(float("inf"), float("inf"), cost_bound)
         )
-        end_time = os.times()[0]
-        time_remaining = time_remaining - (end_time - start_time)
-        if better_result:
-            best_solution = better_result.gval + heur_fn(better_result)
-            result = better_result
+        finish_time = os.times()[0]
+        time_left -= finish_time - init_time
+        if improved_solution:
+            cost_bound = improved_solution.gval + heur_fn(improved_solution)
+            solution = improved_solution
         else:
             break
 
-    return result
+    return solution
 
 
 def anytime_gbfs(initial_state, heur_fn, timebound=10):
