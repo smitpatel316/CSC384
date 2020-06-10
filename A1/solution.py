@@ -48,41 +48,13 @@ class BoardHelper:
 
     def is_vehicle_blocking_goal_vehicle(self, vehicle: Vehicle):
         # i = 0 if vertical and 1 if horizontal
-        i = not int(self.goal_vehicle.is_horizontal)
+        i = int(self.goal_vehicle.is_horizontal)
         vehicle_tail = self.get_vehicle_tail(vehicle)
-        if self.goal_vehicle.is_horizontal:
-            total = self.total_y
-        else:
-            if (
-                (
-                    self.goal_vehicle.loc[0]
-                    > vehicle_tail[0]
-                    >= vehicle.loc[0]
-                )
-                or (
-                    vehicle_tail[0]
-                    < self.goal_vehicle.loc[0]
-                    < vehicle.loc[0]
-                )
-                or (
-                    vehicle.loc[0]
-                    > self.goal_vehicle.loc[1 - i]
-                    > vehicle_tail[1 - i]
-                )
-            ):
-                return False
-            if vehicle.loc[i] <= self.goal_vehicle.loc[i] <= vehicle_tail[i]:
-                return True
-            elif vehicle.length >= self.total_x:
-                return True
-            # Wrapping
-            elif vehicle_tail[i] < vehicle.loc[i] and (
-                vehicle.loc[i] <= self.goal_vehicle.loc[i] <= self.total_x
-                or self.goal_vehicle.loc[i] <= vehicle_tail[i]
-            ):
-                return True
-            else:
-                return False
+        return not (
+            (self.goal_vehicle.loc[i] > vehicle_tail[i] >= vehicle.loc[i])
+            or (vehicle_tail[i] < self.goal_vehicle.loc[i] < vehicle.loc[i])
+            or (vehicle.loc[i] > self.goal_vehicle.loc[i] > vehicle_tail[i])
+        )
 
 
 def rushhour_goal_fn(state: Rushhour):
@@ -167,11 +139,18 @@ def heur_alternate(state: Rushhour):
 
         if helper.is_entrance_inverted:
             entrance -= helper.goal_vehicle.length - 1
+            if entrance < 0:
+                entrance = helper.total_x - entrance
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
                 if helper.is_vehicle_blocking_goal_vehicle(vehicle):
-                    pass
+                    if entrance > head:
+                        if 0 <= vehicle.loc[0] < head or head < vehicle.loc[0] < helper.total_x:
+                            blocked_1 += 1
+                    else:
+                        if entrance <= vehicle.loc[0] < head:
+                            blocked_1 += 1
     else:
         head = helper.goal_vehicle.loc[1]
         entrance = helper.goal_entrance[1]
@@ -182,9 +161,51 @@ def heur_alternate(state: Rushhour):
                 entrance = helper.total_y - entrance
 
         for vehicle in state.vehicle_list:
+            if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
+                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
+                    if entrance > head:
+                        if 0 <= vehicle.loc[1] < head or head < vehicle.loc[1] < helper.total_y:
+                            blocked_1 += 1
+                    else:
+                        if entrance <= vehicle.loc[1] < head:
+                            blocked_1 += 1
+
+    if helper.goal_vehicle.is_horizontal:
+        tail = helper.goal_vehicle_tail[0]
+        entrance = helper.goal_entrance[0]
+
+        if not helper.is_entrance_inverted:
+            entrance += helper.goal_vehicle.length - 1
+            if entrance >= helper.total_x:
+                entrance = helper.total_x - entrance
+
+        for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
                 if helper.is_vehicle_blocking_goal_vehicle(vehicle):
-                    pass
+                    if entrance > tail:
+                        if tail < vehicle.loc[1] <= entrance:
+                            blocked_2 += 1
+                    else:
+                        if vehicle.loc[1] > tail or 0 <= vehicle.loc[1] <= entrance:
+                            blocked_2 += 1
+    else:
+        tail = helper.goal_vehicle_tail[1]
+        entrance = helper.goal_entrance[1]
+
+        if not helper.is_entrance_inverted:
+            entrance += helper.goal_vehicle.length - 1
+            if entrance >= helper.total_y:
+                entrance = helper.total_y - entrance
+
+        for vehicle in state.vehicle_list:
+            if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
+                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
+                    if entrance > tail:
+                        if tail < vehicle.loc[1] <= entrance:
+                            blocked_2 += 1
+                    else:
+                        if vehicle.loc[1] > tail or 0 <= vehicle.loc[1] <= entrance:
+                            blocked_2 += 1
 
     return min(blocked_1, blocked_2)
 
