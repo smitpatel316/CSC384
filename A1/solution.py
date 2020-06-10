@@ -55,6 +55,18 @@ class BoardHelper:
             total = self.total_x
 
         vehicle_tail = self.get_vehicle_tail(vehicle)
+        if (
+            (
+                vehicle_tail[1 - i] < self.goal_vehicle.loc[1 - i]
+                and vehicle.loc[1 - i] <= 0
+            )
+            or (vehicle_tail[1 - i] < self.goal_vehicle.loc[1 - i] < vehicle.loc[1 - i])
+            or (
+                vehicle.loc[1 - i] > self.goal_vehicle.loc[1 - i]
+                and vehicle_tail[1 - i] > vehicle.loc[1-i]
+            )
+        ):
+            return False
         if vehicle.loc[i] <= self.goal_vehicle.loc[i] <= vehicle_tail[i]:
             return True
         elif vehicle.length >= total:
@@ -140,7 +152,7 @@ def heur_alternate(state: Rushhour):
     helper = BoardHelper(state)
     moves_1, moves_2 = heur_min_moves_wrapper(state, helper)
 
-    blocked_1, blocked_2 = 1, 1
+    blocked_1, blocked_2 = 0, 0
     if helper.goal_vehicle.is_horizontal:
         goal_vehicle_x_1 = helper.goal_vehicle.loc[0]
         goal_vehicle_x_2 = helper.goal_vehicle_tail[0]
@@ -158,8 +170,6 @@ def heur_alternate(state: Rushhour):
 
         for vehicle in state.vehicle_list:
             if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
-                # vehicle_tail = helper.get_vehicle_tail(vehicle)
-                # if vehicle.loc[1] <= helper.goal_vehicle.loc[1] <= vehicle_tail[1]:
                 if helper.is_vehicle_blocking_goal_vehicle(vehicle):
                     if entrance_x_1 > goal_vehicle_x_1:
                         if (
