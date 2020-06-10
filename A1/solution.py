@@ -48,25 +48,26 @@ class BoardHelper:
 
     def is_vehicle_blocking_goal_vehicle(self, vehicle: Vehicle):
         # i = 0 if vertical and 1 if horizontal
-        i = int(self.goal_vehicle.is_horizontal)
+        i = not int(self.goal_vehicle.is_horizontal)
         vehicle_tail = self.get_vehicle_tail(vehicle)
         if self.goal_vehicle.is_horizontal:
             total = self.total_y
         else:
             if (
                 (
-                    vehicle_tail[0] < self.goal_vehicle.loc[0]
-                    and vehicle.loc[0] >= 0
+                    self.goal_vehicle.loc[0]
+                    > vehicle_tail[0]
+                    >= vehicle.loc[0]
                 )
                 or (
-                    vehicle_tail[1 - i]
-                    < self.goal_vehicle.loc[1 - i]
-                    < vehicle.loc[1 - i]
+                    vehicle_tail[0]
+                    < self.goal_vehicle.loc[0]
+                    < vehicle.loc[0]
                 )
                 or (
-                    self.goal_vehicle.loc[1 - i]
-                    < vehicle.loc[1 - i]
-                    < vehicle_tail[1 - i]
+                    vehicle.loc[0]
+                    > self.goal_vehicle.loc[1 - i]
+                    > vehicle_tail[1 - i]
                 )
             ):
                 return False
