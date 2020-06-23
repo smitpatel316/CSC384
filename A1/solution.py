@@ -49,30 +49,12 @@ class BoardHelper:
     def is_vehicle_blocking_goal_vehicle(self, vehicle: Vehicle):
         # i = 0 if vertical and 1 if horizontal
         i = int(self.goal_vehicle.is_horizontal)
-        if self.goal_vehicle.is_horizontal:
-            total = self.total_y
-        else:
-            total = self.total_x
-
         vehicle_tail = self.get_vehicle_tail(vehicle)
-        if (
-            (
-                vehicle_tail[1 - i] < self.goal_vehicle.loc[1 - i]
-                and vehicle.loc[1 - i] <= 0
-            )
-            or (vehicle_tail[1 - i] < self.goal_vehicle.loc[1 - i] < vehicle.loc[1 - i])
-            or (
-                vehicle.loc[1 - i] > self.goal_vehicle.loc[1 - i]
-                and vehicle_tail[1 - i] > vehicle.loc[1-i]
-            )
-        ):
-            return False
-        if vehicle.loc[i] <= self.goal_vehicle.loc[i] <= vehicle_tail[i]:
-            return True
-        elif vehicle.length >= total:
-            return True
-        else:
-            return False
+        return not (
+            (self.goal_vehicle.loc[i] > vehicle_tail[i] >= vehicle.loc[i])
+            or (vehicle_tail[i] < self.goal_vehicle.loc[i] < vehicle.loc[i])
+            or (self.goal_vehicle.loc[i] < vehicle.loc[i] < vehicle_tail[i])
+        )
 
 
 def rushhour_goal_fn(state: Rushhour):
@@ -150,82 +132,40 @@ def heur_alternate(state: Rushhour):
     # Write a heuristic function that improves a little upon heur_min_moves to estimate distance between the current state and the goal.
     # Your function should return a numeric value for the estimate of the distance to the goal.
     helper = BoardHelper(state)
-    moves_1, moves_2 = heur_min_moves_wrapper(state, helper)
+    blocked_1, blocked_2 = heur_min_moves_wrapper(state, helper)
+    # i = 0 for horizontal, i = 1 for vertical
+    i = not int(helper.goal_vehicle.is_horizontal)
+    head = helper.goal_vehicle.loc[i]
+    tail = helper.goal_vehicle_tail[i]
+    head_entrance = helper.goal_entrance[i]
+    tail_entrance = helper.goal_entrance[i]
 
-    blocked_1, blocked_2 = 0, 0
-    if helper.goal_vehicle.is_horizontal:
-        goal_vehicle_x_1 = helper.goal_vehicle.loc[0]
-        goal_vehicle_x_2 = helper.goal_vehicle_tail[0]
-        entrance_x_1 = helper.goal_entrance[0]
-        entrance_x_2 = helper.goal_entrance[0]
-
-        if helper.is_entrance_inverted:
-            entrance_x_1 -= helper.goal_vehicle.length - 1
-            if entrance_x_1 < 0:
-                entrance_x_1 = helper.total_x - entrance_x_1
-        else:
-            entrance_x_2 += helper.goal_vehicle.length - 1
-            if entrance_x_2 >= helper.total_x:
-                entrance_x_2 -= helper.total_x
-
-        for vehicle in state.vehicle_list:
-            if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
-                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
-                    if entrance_x_1 > goal_vehicle_x_1:
-                        if (
-                            vehicle.loc[0] < goal_vehicle_x_1
-                            or vehicle.loc[0] > entrance_x_1
-                        ):
-                            blocked_1 += 1
-                    else:
-                        if goal_vehicle_x_1 > vehicle.loc[0] > entrance_x_1:
-                            blocked_1 += 1
-                    if entrance_x_2 > goal_vehicle_x_2:
-                        if goal_vehicle_x_2 < vehicle.loc[0] < entrance_x_2:
-                            blocked_2 += 1
-                    else:
-                        if (
-                            vehicle.loc[0] > goal_vehicle_x_2
-                            or vehicle.loc[0] < entrance_x_2
-                        ):
-                            blocked_2 += 1
+    if helper.is_entrance_inverted:
+        head_entrance -= helper.goal_vehicle.length - 1
+        if head_entrance < 0:
+            head_entrance = helper.total_x - head_entrance
     else:
-        goal_vehicle_y_1 = helper.goal_vehicle.loc[1]
-        goal_vehicle_y_2 = helper.goal_vehicle_tail[1]
-        entrance_y_1 = helper.goal_entrance[1]
-        entrance_y_2 = helper.goal_entrance[1]
+        tail_entrance += helper.goal_vehicle.length - 1
+        if tail_entrance >= helper.total_x:
+            tail_entrance = helper.total_x - tail_entrance
 
-        if helper.is_entrance_inverted:
-            entrance_y_1 -= helper.goal_vehicle.length - 1
-            if entrance_y_1 < 0:
-                entrance_y_1 = helper.total_y - entrance_y_1
-        else:
-            entrance_y_2 += helper.goal_vehicle.length - 1
-            if entrance_y_2 >= helper.total_y:
-                entrance_y_2 -= helper.total_y
+    for vehicle in state.vehicle_list:
+        if vehicle.loc != helper.goal_vehicle.loc and not vehicle.is_horizontal:
+            if helper.is_vehicle_blocking_goal_vehicle(vehicle):
+                if head_entrance > head:
+                    if 0 <= vehicle.loc[i] < head or head < vehicle.loc[i] < helper.total_x:
+                        blocked_1 += 1
+                else:
+                    if head_entrance <= vehicle.loc[i] < head:
+                        blocked_1 += 1
+                if tail_entrance > tail:
+                    if tail < vehicle.loc[i] <= tail_entrance:
+                        blocked_2 += 1
+                else:
+                    if vehicle.loc[i] > tail or 0 <= vehicle.loc[i] <= tail_entrance:
+                        blocked_2 += 1
 
-        for vehicle in state.vehicle_list:
-            if vehicle.loc != helper.goal_vehicle.loc and vehicle.is_horizontal:
-                if helper.is_vehicle_blocking_goal_vehicle(vehicle):
-                    if entrance_y_1 > goal_vehicle_y_1:
-                        if (
-                            vehicle.loc[1] < goal_vehicle_y_1
-                            or vehicle.loc[1] > entrance_y_1
-                        ):
-                            blocked_1 += 1
-                    else:
-                        if goal_vehicle_y_1 > vehicle.loc[1] > entrance_y_1:
-                            blocked_1 += 1
-                    if entrance_y_2 > goal_vehicle_y_2:
-                        if goal_vehicle_y_2 < vehicle.loc[1] < entrance_y_2:
-                            blocked_2 += 1
-                    else:
-                        if (
-                            vehicle.loc[1] > goal_vehicle_y_2
-                            or vehicle.loc[1] < entrance_y_2
-                        ):
-                            blocked_2 += 1
-    return min(moves_1 + blocked_1, moves_2 + blocked_2)
+    return min(blocked_1, blocked_2)
 
 
 def fval_function(sN, weight):
