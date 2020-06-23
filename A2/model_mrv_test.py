@@ -1,10 +1,12 @@
+from pprint import pprint
+
 from asterisk_csp import *
 from cspbase import *
 from propagators import *
 
-test_ord_mrv = False
+test_ord_mrv = True
 test_first_model = True
-test_second_model = False
+test_second_model = True
 
 grid_1 = [
     [None, 1, None, None, None, None, None, 6, None],
@@ -202,14 +204,8 @@ if __name__ == "__main__":
     if test_first_model:
         score = 1
         # 1st model test
-        csp, var_array = asterisk_csp_model_1(grid_1)
+        csp, var_array = asterisk_csp_model_2(grid_1)
         cons = csp.get_all_cons()
-        bin_flag = True
-        for c in cons:
-            if len(c.get_scope()) != 2:
-                bin_flag = False
-                print("Non binary constraint")
-                break
         solver = BT(csp)
         solver.bt_search(prop_GAC)
         sol = []
@@ -220,36 +216,34 @@ if __name__ == "__main__":
                 row_list.append(var_array[i][j].get_assigned_value())
                 sol.append(var_array[i][j].get_assigned_value())
             formatted_sol.append(row_list)
-        from pprint import pprint
         pprint(formatted_sol)
         if sol != answer_1:
             print("Wrong solution")
-        if (sol == answer_1) and bin_flag:
+        if sol == answer_1:
             print("Passed first model test")
         else:
             print("Failed first model test")
-        # 2nd model test
-        if test_second_model:
-            csp, var_array = asterisk_csp_model_1(grid_2)
-            cons = csp.get_all_cons()
-            bin_flag = True
-            for c in cons:
-                if len(c.get_scope()) != 2:
-                    bin_flag = False
-                    print("Non binary constraint")
-                    break
-            solver = BT(csp)
-            solver.bt_search(prop_GAC)
-            sol = []
-            for i in range(len(var_array)):
-                for j in range(len(var_array)):
-                    sol.append(var_array[i][j].get_assigned_value())
-            if sol != answer_2:
-                print("Wrong solution")
-            if (sol == answer_2) and bin_flag:
-                print("Passed second model test")
-            else:
-                print("Failed second model test")
+    # 2nd model test
+    if test_second_model:
+        csp, var_array = asterisk_csp_model_2(grid_2)
+        cons = csp.get_all_cons()
+        solver = BT(csp)
+        solver.bt_search(prop_GAC)
+        sol = []
+        formatted_sol = list()
+        for i in range(len(var_array)):
+            row_list = list()
+            for j in range(len(var_array)):
+                row_list.append(var_array[i][j].get_assigned_value())
+                sol.append(var_array[i][j].get_assigned_value())
+            formatted_sol.append(row_list)
+        pprint(formatted_sol)
+        if sol != answer_2:
+            print("Wrong solution")
+        if sol == answer_2:
+            print("Passed second model test")
+        else:
+            print("Failed second model test")
 
     if test_ord_mrv:
 
