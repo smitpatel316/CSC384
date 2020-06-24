@@ -144,22 +144,12 @@ def asterisk_csp_model_2(ast_grid):
         constraint.add_satisfying_tuples(generate_all_diff(col))
         csp.add_constraint(constraint)
 
-    squares = [
-        (1, 1),
-        (4, 1),
-        (7, 1),
-        (1, 4),
-        (4, 4),
-        (7, 4),
-        (1, 7),
-        (4, 7),
-        (7, 7),
-    ]
+    squares = [(1, 1), (4, 1), (7, 1), (1, 4), (4, 4), (7, 4), (1, 7), (4, 7), (7, 7)]
     directions = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]
     for (i, square) in enumerate(squares):
         scope = [variables[square[0]][square[1]]]
         for direction in directions:
-            scope.append(variables[direction[0]+square[0]][direction[1]+square[1]])
+            scope.append(variables[direction[0] + square[0]][direction[1] + square[1]])
         constraint = Constraint(f"Square: {i}", scope)
         constraint.add_satisfying_tuples(generate_all_diff(scope))
         csp.add_constraint(constraint)
@@ -171,24 +161,3 @@ def asterisk_csp_model_2(ast_grid):
     constraint.add_satisfying_tuples(generate_all_diff(scope))
     csp.add_constraint(constraint)
     return csp, variables
-
-
-if __name__ == "__main__":
-    grid_1 = [
-        [None, 1, None, None, None, None, None, 6, None],
-        [3, None, 9, None, None, None, 1, None, 5],
-        [None, 8, None, 3, None, 5, None, 7, None],
-        [None, None, 2, None, 7, None, 8, None, None],
-        [None, None, None, 6, None, 8, None, None, None],
-        [None, None, 8, None, 9, None, 2, None, None],
-        [None, 2, None, 4, None, 1, None, 9, None],
-        [9, None, 4, None, None, None, 6, None, 1],
-        [None, 3, None, None, None, None, None, 8, None],
-    ]
-
-    csp, var_array = asterisk_csp_model_2(grid_1)
-    cons = csp.get_all_cons()
-    bin_flag = True
-    for c in cons:
-        print(c.get_scope())
-

@@ -200,53 +200,36 @@ answer_2 = [
     1,
 ]
 
+
+def test_model(model=asterisk_csp_model_1):
+    for (index, (grid, answer)) in enumerate([(grid_1, answer_1), (grid_2, answer_2)]):
+        print(f"Testing: {str(model.__name__)} Grid {index+1} ...")
+
+        csp, var_array = model(grid)
+        solver = BT(csp)
+        solver.bt_search(prop_GAC)
+
+        sol = []
+        formatted_sol = list()
+        for i in range(len(var_array)):
+            row_list = list()
+            for j in range(len(var_array)):
+                row_list.append(var_array[i][j].get_assigned_value())
+                sol.append(var_array[i][j].get_assigned_value())
+            formatted_sol.append(row_list)
+        pprint(formatted_sol)
+
+        if sol != answer:
+            print(f"Testing: {str(model.__name__)} Grid {index+1} WRONG SOLUTION")
+        else:
+            print(f"Testing: {str(model.__name__)} Grid {index+1} CORRECT SOLUTION")
+
+
 if __name__ == "__main__":
-    if test_first_model:
-        score = 1
-        # 1st model test
-        csp, var_array = asterisk_csp_model_2(grid_1)
-        cons = csp.get_all_cons()
-        solver = BT(csp)
-        solver.bt_search(prop_GAC)
-        sol = []
-        formatted_sol = list()
-        for i in range(len(var_array)):
-            row_list = list()
-            for j in range(len(var_array)):
-                row_list.append(var_array[i][j].get_assigned_value())
-                sol.append(var_array[i][j].get_assigned_value())
-            formatted_sol.append(row_list)
-        pprint(formatted_sol)
-        if sol != answer_1:
-            print("Wrong solution")
-        if sol == answer_1:
-            print("Passed first model test")
-        else:
-            print("Failed first model test")
-    # 2nd model test
-    if test_second_model:
-        csp, var_array = asterisk_csp_model_2(grid_2)
-        cons = csp.get_all_cons()
-        solver = BT(csp)
-        solver.bt_search(prop_GAC)
-        sol = []
-        formatted_sol = list()
-        for i in range(len(var_array)):
-            row_list = list()
-            for j in range(len(var_array)):
-                row_list.append(var_array[i][j].get_assigned_value())
-                sol.append(var_array[i][j].get_assigned_value())
-            formatted_sol.append(row_list)
-        pprint(formatted_sol)
-        if sol != answer_2:
-            print("Wrong solution")
-        if sol == answer_2:
-            print("Passed second model test")
-        else:
-            print("Failed second model test")
+    test_model(asterisk_csp_model_1)
+    test_model(asterisk_csp_model_2)
 
     if test_ord_mrv:
-
         a = Variable("A", [1])
         b = Variable("B", [1])
         c = Variable("C", [1])
