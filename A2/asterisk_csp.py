@@ -30,7 +30,6 @@ ASTERISK = [(1, 4), (2, 2), (2, 6), (4, 1), (4, 4), (4, 7), (6, 2), (6, 6), (7, 
 
 def generate_variables(ast_grid):
     csp = CSP("Asterisk Sudoku")
-    # variables = [[None] * len(ast_grid) for _ in range(len(ast_grid))]
     variables = list()
     for (row_i, row) in enumerate(ast_grid):
         row_variables = list()
