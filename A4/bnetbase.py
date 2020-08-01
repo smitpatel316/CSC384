@@ -42,6 +42,7 @@
        all of the factors a variable is involved in. 
 
     """
+import itertools
 
 
 class Variable:
@@ -307,7 +308,29 @@ class BN:
 
 def multiply_factors(Factors):
     """return a new factor that is the product of the factors in Fators"""
-    # IMPLEMENT
+    unique_vars = list()
+    new_factor_name = ""
+    domain = list()
+    for factor in Factors:
+        for var in factor.get_scope():
+            if var not in unique_vars:
+                unique_vars.append(var)
+                new_factor_name += var.name[0]
+                domain.append(var.domain())
+    new_factor = Factor(name=new_factor_name, scope=unique_vars)
+    for combination in itertools.product(*domain):
+        for i, var in enumerate(unique_vars):
+            var.set_assignment(combination[i])
+        product = 1
+        for factor in Factors:
+            product *= factor.get_value_at_current_assignments()
+        new_factor.add_value_at_current_assignment(product)
+    return new_factor
+    print(unique_vars)
+    print(domain)
+    print(list(itertools.product(*domain)))
+
+
 
 
 def restrict_factor(f, var, value):
