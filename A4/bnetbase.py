@@ -308,13 +308,13 @@ class BN:
 
 def multiply_factors(Factors):
     """return a new factor that is the product of the factors in Fators"""
-    unique_vars = list()
+    unique_vars = set()
     new_factor_name = ""
     domain = list()
     for factor in Factors:
         for var in factor.get_scope():
             if var not in unique_vars:
-                unique_vars.append(var)
+                unique_vars.add(var)
                 new_factor_name += var.name[0]
                 domain.append(var.domain())
     new_factor = Factor(name=new_factor_name, scope=unique_vars)
@@ -326,25 +326,53 @@ def multiply_factors(Factors):
             product *= factor.get_value_at_current_assignments()
         new_factor.add_value_at_current_assignment(product)
     return new_factor
-    print(unique_vars)
-    print(domain)
-    print(list(itertools.product(*domain)))
 
 
-
-
-def restrict_factor(f, var, value):
+def restrict_factor(f: Factor, var: Variable, value):
     """f is a factor, var is a Variable, and value is a value from var.domain.
     Return a new factor that is the restriction of f by this var = value.
     Don't change f! If f has only one variable its restriction yields a
     constant factor"""
-    # IMPLEMENT
+    if var not in f.get_scope():
+        return f
+
+    new_scope = f.get_scope()
+    new_scope.remove(var)
+    new_factor = Factor(name=f.name, scope=new_scope)
+    domains = [v.domain() for v in new_scope]
+
+    for combination in itertools.product(*domains):
+        for val in var.domain():
+            if val == value:
+                var.set_assignment(val)
+                for i, v in enumerate(new_scope):
+                    v.set_assignment(combination[i])
+                new_factor.add_value_at_current_assignment(
+                    f.get_value_at_current_assignments()
+                )
+                break
+    return new_factor
 
 
-def sum_out_variable(f, var):
+def sum_out_variable(f: Factor, var: Variable):
     """return a new factor that is the product of the factors in Factors
        followed by the suming out of Var"""
-    # IMPLEMENT
+    if var not in f.get_scope():
+        return f
+
+    new_scope = f.get_scope()
+    new_scope.remove(var)
+    new_factor = Factor(name=f"Sum out {var.name}", scope=new_scope)
+    domains = [v.domain() for v in new_scope]
+    for combination in itertools.product(*domains):
+        new_val = 0
+        for val in var.domain():
+            var.set_assignment(val)
+            for i, v in enumerate(new_scope):
+                v.set_assignment(combination[i])
+            new_val += f.get_value_at_current_assignments()
+        new_factor.add_value_at_current_assignment(new_val)
+    return new_factor
 
 
 def normalize(nums):

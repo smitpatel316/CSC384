@@ -16,3 +16,11 @@ if __name__ == "__main__":
     F3 = multiply_factors([F1, F2])
     F3.print_table()
 
+    print("Testing Restrict Factors")
+    F4 = restrict_factor(F1, a, True)
+    F4.print_table()
+
+    print("Summing out variable")
+    F5 = sum_out_variable(F1, a)
+    F5.print_table()
+
