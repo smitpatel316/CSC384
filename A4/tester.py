@@ -24,3 +24,6 @@ if __name__ == "__main__":
     F5 = sum_out_variable(F1, a)
     F5.print_table()
 
+    print("Testing normalize")
+    print(normalize([5, 3, 2]))
+

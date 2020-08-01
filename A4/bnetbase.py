@@ -378,7 +378,10 @@ def sum_out_variable(f: Factor, var: Variable):
 def normalize(nums):
     """take as input a list of number and return a new list of numbers where
     now the numbers sum to 1, i.e., normalize the input numbers"""
-    # IMPLEMENT
+    total = sum(nums)
+    if total == 0:
+        return [0]*len(nums)
+    return [i/total for i in nums]
 
 
 ###Orderings
