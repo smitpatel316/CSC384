@@ -14,11 +14,7 @@ from othello_shared import find_lines, get_possible_moves, get_score, play_move
 Wrapper = namedtuple("Wrapper", ["move", "next_board"])
 
 
-minimax_min_cache = dict()
-minimax_max_cache = dict()
-
-alphabeta_min_node_cache = dict()
-alphabeta_max_node_cache = dict()
+seen = dict()
 
 
 def eprint(
@@ -88,8 +84,8 @@ def compute_heuristic(board, color):  # not implemented, optional
 
 ############ MINIMAX ###############################
 def minimax_min_node(board, color, limit, caching=0):
-    if caching and (board, color) in minimax_min_cache:
-        return minimax_min_cache[(board, color)]
+    if caching and (board, color) in seen:
+        return seen[(board, color)]
 
     score = compute_utility(board, color)
     if not limit:
@@ -97,7 +93,7 @@ def minimax_min_node(board, color, limit, caching=0):
     possible_moves = get_possible_moves(board, 3 - color)
     if not possible_moves:
         if caching:
-            minimax_min_cache[(board, color)] = (None, score)
+            seen[(board, color)] = (None, score)
         return None, score
 
     best_move = None
@@ -112,7 +108,7 @@ def minimax_min_node(board, color, limit, caching=0):
             min_utility = utility
 
     if caching:
-        minimax_min_cache[(board, color)] = (best_move, min_utility)
+        seen[(board, color)] = (best_move, min_utility)
 
     return best_move, min_utility
 
@@ -120,8 +116,8 @@ def minimax_min_node(board, color, limit, caching=0):
 def minimax_max_node(
     board, color, limit, caching=0
 ):  # returns highest possible utility
-    if caching and (board, color) in minimax_max_cache:
-        return minimax_max_cache[(board, color)]
+    if caching and (board, color) in seen:
+        return seen[(board, color)]
     score = compute_utility(board, color)
     if not limit:
         return None, score
@@ -129,7 +125,7 @@ def minimax_max_node(
     possible_moves = get_possible_moves(board, color)
     if not possible_moves:
         if caching:
-            minimax_max_cache[(board, color)] = (None, score)
+            seen[(board, color)] = (None, score)
         return None, score
 
     best_move = None
@@ -144,7 +140,7 @@ def minimax_max_node(
             max_utility = utility
 
     if caching:
-        minimax_max_cache[(board, color)] = (best_move, max_utility)
+        seen[(board, color)] = (best_move, max_utility)
 
     return best_move, max_utility
 
@@ -168,15 +164,15 @@ def select_move_minimax(board, color, limit, caching=0):
 
 ############ ALPHA-BETA PRUNING #####################
 def alphabeta_min_node(board, color, alpha, beta, limit, caching=0, ordering=0):
-    if caching and (board, color) in alphabeta_min_node_cache:
-        return alphabeta_min_node_cache[(board, color)]
+    if caching and (board, color) in seen:
+        return seen[(board, color)]
     score = compute_utility(board, color)
     if not limit:
         return None, score
     possible_moves = get_possible_moves(board, 3 - color)
     if not possible_moves:
         if caching:
-            alphabeta_min_node_cache[(board, color)] = (None, score)
+            seen[(board, color)] = (None, score)
         return None, score
 
     best_move = None
@@ -202,20 +198,20 @@ def alphabeta_min_node(board, color, alpha, beta, limit, caching=0, ordering=0):
             break
 
     if caching:
-        alphabeta_min_node_cache[(board, color)] = (best_move, min_utility)
+        seen[(board, color)] = (best_move, min_utility)
     return best_move, min_utility
 
 
 def alphabeta_max_node(board, color, alpha, beta, limit, caching=0, ordering=0):
-    if caching and (board, color) in alphabeta_max_node_cache:
-        return alphabeta_max_node_cache[(board, color)]
+    if caching and (board, color) in seen:
+        return seen[(board, color)]
     score = compute_utility(board, color)
     if not limit:
         return None, score
     possible_moves = get_possible_moves(board, color)
     if not possible_moves:
         if caching:
-            alphabeta_max_node_cache[(board, color)] = (None, score)
+            seen[(board, color)] = (None, score)
         return None, score
 
     best_move = None
@@ -241,7 +237,7 @@ def alphabeta_max_node(board, color, alpha, beta, limit, caching=0, ordering=0):
             break
 
     if caching:
-        alphabeta_max_node_cache[(board, color)] = (best_move, max_utility)
+        seen[(board, color)] = (best_move, max_utility)
     return best_move, max_utility
 
 
