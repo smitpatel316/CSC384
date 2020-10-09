@@ -211,3 +211,128 @@ if __name__ == "__main__":
         #    for j in range(len(probs)):
         #        print("P({0:} = {1:}|{0:} = {1:}) = {2:0.1f}".format(v.name, t.name, doms[i], 100*probs[i]))
         print()
+
+    print("*****************")
+    # a
+    # gd.set_evidence("Female")
+    # hl.set_evidence("YES")
+    # print(VE(medical, vg, [gd,hl]))
+    # gd.set_evidence("Male")
+    # print(VE(medical, vg, [gd,hl]))
+    #---
+    # ht.set_evidence("YES")
+    # co.set_evidence("YES")
+    # print(VE(medical, ht, [co, hl]))
+    # co.set_evidence("NO")
+    # print(VE(medical, ht, [co,hl]))
+    # b
+    # co.set_evidence("YES")
+    # gd.set_evidence("Male")
+    # hl.set_evidence("YES")
+    # ht.set_evidence("YES")
+    # print(VE(medical, ag, [gd, hl, ht]))
+    # gd.set_evidence("Female")
+    # print(VE(medical, ag, [gd, hl, ht]))
+    # ac.set_evidence("Normal")
+    # print(VE(medical, ag, [gd, hl, ht, ac]))
+    # gd.set_evidence("Male")
+    # print(VE(medical, ag, [gd, hl, ht, ac]))
+    #c
+    # rg.set_evidence("City")
+    # print(VE(medical, rg, []))
+    # bmi.set_evidence("~28.0")
+    # print(VE(medical, rg, [bmi]))
+    # co.set_evidence("YES")
+    # print(VE(medical, rg, [bmi, co]))
+    # hl.set_evidence("NO")
+    # print(VE(medical, rg, [bmi, co, hl]))
+    # ht.set_evidence("YES")
+    # print(VE(medical, rg, [bmi, co, hl, ht]))
+    # db.set_evidence("YES")
+    # print(VE(medical, rg, [bmi, co, hl, ht, db]))
+    # a = [bmi, co, hl, ht, db]
+    # last = VE(medical, rg, [])[-1]
+    # for i in range(len(a)):
+    #     val = VE(medical, rg, a[:i+1])[-1]
+    #     print(val >= last, val, last)
+    #     last = val
+    # 2d
+    ac.set_evidence("Sufficient")
+    print(VE(medical, ac, []))
+    bmi.set_evidence("~24.0")
+    print(VE(medical, ac, [bmi]))
+    co.set_evidence("YES")
+    print(VE(medical, ac, [bmi, co]))
+    hl.set_evidence("YES")
+    print(VE(medical, ac, [bmi, co, hl]))
+    ht.set_evidence("NO")
+    print(VE(medical, ac, [bmi, co, hl, ht]))
+    ag.set_evidence("~60")
+    print(VE(medical, ac, [bmi, co, hl, ht, ag]))
+
+    print("*********")
+    a = [bmi, co, hl, ht, ag]
+    last = VE(medical, ac, [])[-1]
+    for i in range(len(a)):
+        val = VE(medical, ac, a[:i+1])[-1]
+        print(val < last, val, last)
+        last = val
+    # print("Separated")
+    # hl.set_evidence("YES")
+    # gd.set_evidence("Female")
+    # print(VE(medical, rg, [hl, gd]))
+    # print(VE(medical, rg, [hl]))
+    # print("NOT Sufficient")
+    # print(VE(medical, hl, [rg, gd]))
+    # print(VE(medical, hl, [rg]))
+
+    # print("Sufficient")
+    # # gd.set_evidence("Female")
+    # # hl.set_evidence("YES")
+    # # db.set_evidence("YES")
+    # # print(VE(medical, hl, [db, gd]))
+    # # print(VE(medical, hl, [db]))
+    # # # print("Not Separated")
+    # # # print(VE(medical, hl, [rg, gd]))
+    # # # print(VE(medical, hl, [rg]))
+
+    # A = gd
+    # C = hl
+    # Y = rg
+    #
+    # A.set_evidence("Female")
+    # C.set_evidence("YES")
+    # Y.set_evidence("City")
+    #
+    # print(VE(medical, A, [C, Y]))
+    # print(VE(medical, A, [Y]))
+
+    # P_Gender = VE(medical, gd, [])
+    # gd.set_evidence("Male")
+    # P_gd_Male_hl = [x*P_Gender[0] for x in VE(medical, hl, [gd])]
+    # gd.set_evidence("Female")
+    # P_gd_Female_hl = [x*P_Gender[1] for x in VE(medical, hl, [gd])]
+    #
+    # # #P(Hyperlipidemia = YES, Gender = Male, Diabetes)
+    # hl.set_evidence("YES")
+    # gd.set_evidence("Male")
+    # P_db_hl_YES_Gender_Male = [x*P_gd_Male_hl[0] for x in VE(medical, rg, [hl, gd])]
+    # print(P_db_hl_YES_Gender_Male)
+    #
+    # # #P(Hyperlipidemia = YES, Gender = Female, Diabetes)
+    # hl.set_evidence("YES")
+    # gd.set_evidence("Female")
+    # P_db_hl_YES_Gender_Female = [x*P_gd_Female_hl[0] for x in VE(medical, rg, [hl, gd])]
+    # print(P_db_hl_YES_Gender_Female)
+    #
+    # # #P(Hyperlipidemia = NO, Gender = Male, Diabetes)
+    # hl.set_evidence("NO")
+    # gd.set_evidence("Male")
+    # P_db_hl_NO_Gender_Male = [x*P_gd_Male_hl[1] for x in VE(medical, rg, [hl, gd])]
+    # print(P_db_hl_NO_Gender_Male)
+    #
+    # # #P(Hyperlipidemia = NO, Gender = Female, Diabetes)
+    # hl.set_evidence("NO")
+    # gd.set_evidence("Female")
+    # P_db_hl_NO_Gender_Female = [x*P_gd_Female_hl[1] for x in VE(medical, rg, [hl, gd])]
+    # print(P_db_hl_NO_Gender_Female)

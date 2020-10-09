@@ -308,19 +308,19 @@ class BN:
 
 def multiply_factors(Factors):
     """return a new factor that is the product of the factors in Fators"""
-    unique_vars = set()
+    unique_vars = list()
     new_factor_name = ""
     domain = list()
     for factor in Factors:
         for var in factor.get_scope():
             if var not in unique_vars:
-                unique_vars.add(var)
+                unique_vars.append(var)
                 new_factor_name += var.name[0]
                 domain.append(var.domain())
     new_factor = Factor(name=new_factor_name, scope=unique_vars)
     for combination in itertools.product(*domain):
-        for i, var in enumerate(unique_vars):
-            var.set_assignment(combination[i])
+        for i, assignment in enumerate(combination):
+            unique_vars[i].set_assignment(assignment)
         product = 1
         for factor in Factors:
             product *= factor.get_value_at_current_assignments()
@@ -442,16 +442,13 @@ def compute_fill(scopes, var):
 def remove_var(var, new_scope, scopes):
     """Return the new set of scopes that arise from eliminating var
     from scopes"""
-    new_scopes = []
-    for s in scopes:
-        if not var in s:
-            new_scopes.append(s)
+    new_scopes = [s for s in scopes if var not in s]
     new_scopes.append(new_scope)
     return new_scopes
 
 
 ###
-def VE(Net, QueryVar, EvidenceVars):
+def VE(Net: BN, QueryVar: Variable, EvidenceVars: [Variable]):
     """
     Input: Net---a BN object (a Bayes Net)
            QueryVar---a Variable object (the variable whose distribution
@@ -471,4 +468,23 @@ def VE(Net, QueryVar, EvidenceVars):
    mean that Pr(A='a'|B=1, C='c') = 0.5 Pr(A='a'|B=1, C='c') = 0.24
    Pr(A='a'|B=1, C='c') = 0.26
     """
-    # IMPLEMENT
+    restricted_factors = set()
+    for factor in Net.factors():
+        restricted_factor = factor
+        for evidence_var in EvidenceVars:
+            if evidence_var in factor.get_scope():
+                restricted_factor = restrict_factor(restricted_factor, evidence_var, evidence_var.get_evidence())
+        restricted_factors.add(restricted_factor)
+
+    for var in min_fill_ordering(restricted_factors, QueryVar):
+        factors = [f for f in restricted_factors if var in f.get_scope()]
+        for f in factors:
+            restricted_factors.remove(f)
+        restricted_factors.add(sum_out_variable(multiply_factors(factors), var))
+
+    rf = multiply_factors(restricted_factors)
+    probabilities = list()
+    for domain in QueryVar.domain():
+        QueryVar.set_assignment(domain)
+        probabilities.append(rf.get_value_at_current_assignments())
+    return normalize(probabilities)
